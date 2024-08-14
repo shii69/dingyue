@@ -208,8 +208,7 @@ async function getAddressescsv(tls) {
 			// 检查CSV头部是否包含必需字段
 			const header = lines[0].split(',');
 			const tlsIndex = header.indexOf('TLS');
-			const speedIndex = header.length - 1; // 最后一个字段
-		
+			
 			const ipAddressIndex = 0;// IP地址在 CSV 头部的位置
 			const portIndex = 1;// 端口在 CSV 头部的位置
 			const dataCenterIndex = tlsIndex + 1; // 数据中心是 TLS 的后一个字段
@@ -222,7 +221,7 @@ async function getAddressescsv(tls) {
 			// 从第二行开始遍历CSV行
 			for (let i = 1; i < lines.length; i++) {
 				const columns = lines[i].split(',');
-		
+				const speedIndex = columns.length - 1; // 最后一个字段
 				// 检查TLS是否为"TRUE"且速度大于DLS
 				if (columns[tlsIndex].toUpperCase() === tls && parseFloat(columns[speedIndex]) > DLS) {
 					const ipAddress = columns[ipAddressIndex];
@@ -306,6 +305,7 @@ export default {
 		let uuid = "";
 		let path = "";
 		let sni = "";
+		let type = "ws";
 		let UD = Math.floor(((timestamp - Date.now())/timestamp * 99 * 1099511627776 * 1024)/2);
 		if (env.UA) MamaJustKilledAMan = MamaJustKilledAMan.concat(await ADD(env.UA));
 
@@ -374,6 +374,7 @@ export default {
 			
 			path = env.PATH || "/?ed=2560";
 			sni = env.SNI || host;
+			type = env.TYPE || type;
 			edgetunnel = env.ED || edgetunnel;
 			RproxyIP = env.RPROXYIP || RproxyIP;
 
@@ -408,6 +409,7 @@ export default {
 			uuid = url.searchParams.get('uuid') || url.searchParams.get('password') || url.searchParams.get('pw');
 			path = url.searchParams.get('path');
 			sni = url.searchParams.get('sni') || host;
+			type = url.searchParams.get('type') || type;
 			edgetunnel = url.searchParams.get('edgetunnel') || url.searchParams.get('epeius') || edgetunnel;
 			RproxyIP = url.searchParams.get('proxyip') || RproxyIP;
 
@@ -575,7 +577,7 @@ export default {
 					
 						if (socks5Data) {
 							const socks5 = getRandomProxyByMatch(lowerAddressid, socks5Data);
-							path = `/?${socks5}`;
+							path = `/${socks5}`;
 						} else {
 							// 遍历CMproxyIPs数组查找匹配项
 							for (let item of CMproxyIPs) {
@@ -596,7 +598,7 @@ export default {
 						}
 					}
 
-					const vlessLink = `vless://${uuid}@${address}:${port}?encryption=none&security=&type=ws&host=${host}&path=${encodeURIComponent(path)}#${encodeURIComponent(addressid + EndPS)}`;
+					const vlessLink = `vless://${uuid}@${address}:${port}?encryption=none&security=&type=${type}&host=${host}&path=${encodeURIComponent(path)}#${encodeURIComponent(addressid + EndPS)}`;
 			
 					return vlessLink;
 
@@ -653,7 +655,7 @@ export default {
 				
 					if (socks5Data) {
 						const socks5 = getRandomProxyByMatch(lowerAddressid, socks5Data);
-						path = `/?${socks5}`;
+						path = `/${socks5}`;
 					} else {
 						// 遍历CMproxyIPs数组查找匹配项
 						for (let item of CMproxyIPs) {
@@ -685,11 +687,11 @@ export default {
 				}
 
 				if (协议类型 == 'Trojan'){
-					const trojanLink = `trojan://${uuid}@${address}:${port}?security=tls&sni=${sni}&alpn=http%2F1.1&fp=randomized&type=ws&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
+					const trojanLink = `trojan://${uuid}@${address}:${port}?security=tls&sni=${sni}&alpn=h3&fp=randomized&type=${type}&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
 
 					return trojanLink;
 				} else {
-					const vlessLink = `vless://${uuid}@${address}:${port}?encryption=none&security=tls&sni=${sni}&alpn=http%2F1.1&fp=random&type=ws&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
+					const vlessLink = `vless://${uuid}@${address}:${port}?encryption=none&security=tls&sni=${sni}&alpn=h3&fp=random&type=${type}&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
 			
 					return vlessLink;
 				}
